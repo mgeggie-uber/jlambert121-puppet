@@ -36,9 +36,11 @@ describe 'puppet::server::config', :type => :class do
       it { should contain_file('/var/log/puppetlabs/puppetserver').with(:ensure => 'directory') }
       it { should contain_file('/var/log/puppetlabs/puppetserver').with(:mode => '0750') }
       it { should contain_concat__fragment('puppet_master').with(:content => /ca = true/) }
+      it { should_not contain_concat__fragment('puppet_master').with(:content => /external_nodes/) }
       it { should_not contain_concat__fragment('puppet_master').with(:content => /reports/) }
       it { should_not contain_concat__fragment('puppet_master').with( :content => /dns_alt_names/ ) }
       it { should_not contain_concat__fragment('puppet_master').with(:content => /storeconfigs/) }
+      it { should contain_concat__fragment('puppet_master').with(:content => /node_terminus = plain/) }
       it { should contain_file('/etc/puppetlabs/puppetserver/bootstrap.cfg').with(:content => /puppetlabs\.services\.ca\.certificate\-authority\-service\/certificate\-authority\-service/) }
       it { should_not contain_file('/etc/puppetlabs/puppetserver/bootstrap.cfg').with(:content => /puppetlabs\.services\.ca\.certificate\-authority\-disabled\-service\/certificate\-authority\-disabled\-service/) }
       it { should contain_file('/etc/puppetlabs/puppetserver/logback.xml').with(:content => /<file>\/var\/log\/puppetlabs\/puppetserver\/puppetserver\.log<\/file>/) }
@@ -84,6 +86,12 @@ describe 'puppet::server::config', :type => :class do
       it { should_not contain_file('/etc/puppetlabs/puppetserver/bootstrap.cfg').with(:content => /puppetlabs\.services\.ca\.certificate\-authority\-service\/certificate\-authority\-service/) }
       it { should contain_file('/etc/puppetlabs/puppetserver/bootstrap.cfg').with(:content => /puppetlabs\.services\.ca\.certificate\-authority\-disabled\-service\/certificate\-authority\-disabled\-service/) }
       it { should contain_concat__fragment('puppet_master').with(:content => /ca = false/) }
+    end
+
+    context 'with node_terminus, external_nodes' do
+      let(:pre_condition) { 'class { "puppet": server => true, node_terminus => "exec", external_nodes => "foo" }'}
+      it { should contain_concat__fragment('puppet_master').with(:content => /node_terminus = exec/)}
+      it { should contain_concat__fragment('puppet_master').with(:content => /external_nodes = foo/)}
     end
 
     context 'with hiera_source' do

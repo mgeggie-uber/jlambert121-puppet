@@ -14,8 +14,10 @@ class puppet::params {
   $autosign_list     = []
   $autosign_script   = ''
   $dns_alt_names = undef
+  $external_nodes = undef
   $fileserver_conf = undef
   $manage_hiera = true
+  $node_terminus = 'plain'
   $hiera_source = undef
   $puppetdb = false
   $puppetdb_port = 8081
@@ -33,6 +35,8 @@ class puppet::params {
   $firewall = false
   $jruby_instances = $::processors[count]-1
   $use_legacy_auth = false
+
+  $valid_node_termini = [ 'console', 'exec', 'plain' ]
 
   case $::osfamily {
     'Debian': {

@@ -16,8 +16,10 @@ class puppet (
   Optional[Array[String]]                      $autosign_list     = $::puppet::params::autosign_list,
   Optional[String]                             $autosign_script   = $::puppet::params::autosign_script,
   Optional[Array[String]]                      $dns_alt_names     = $::puppet::params::dns_alt_names,
+  Optional[String]                             $external_nodes    = $::puppet::params::external_nodes,
   Optional[Hash[String, Hash[String, String]]] $fileserver_conf   = $::puppet::params::fileserver_conf,
   Boolean                                      $manage_hiera      = $::puppet::params::manage_hiera,
+  String                                       $node_terminus     = $::puppet::params::node_terminus,
   Optional[Pattern[/\Apuppet/]]                $hiera_source      = $::puppet::params::hiera_source,
   Boolean                                      $puppetdb          = $::puppet::params::puppetdb,
   Integer                                      $puppetdb_port     = $::puppet::params::puppetdb_port,
@@ -51,6 +53,14 @@ class puppet (
 
   if is_array($autosign_list) and !empty($autosign_list) and $autosign_script != '' {
     fail('Puppet: autosign_list and autosign_script can not both be specified')
+  }
+
+  unless $node_terminus in $::puppet::params::valid_node_termini {
+    fail("Puppet: node_terminus must be one of ${::puppet::params::valid_node_termini}" )
+  }
+
+  if $node_terminus == 'exec' and ! is_string($external_nodes) {
+    fail('Puppet: node_terminus = exec requires external_nodes be set to a executable path')
   }
 
   if ( $agent or $server ) {

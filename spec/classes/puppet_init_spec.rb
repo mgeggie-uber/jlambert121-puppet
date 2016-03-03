@@ -62,6 +62,16 @@ describe 'puppet', :type => :class do
       it { expect { should create_class('puppet')}.to raise_error(/autosign_list and autosign_script/) }
     end
 
+    context 'bad node_terminus' do
+      let(:params) { { :node_terminus => 'breakme' } }
+      it { expect { should create_class('puppet') }.to raise_error(/node_terminus must be one of/) }
+    end
+
+    context 'exec node_terminus, bad external_nodes' do
+      let(:params) { { :node_terminus => 'exec', :external_nodes => false } }
+      it { expect { should create_class('puppet').to raise_error(/node_terminus = exec requires external_nodes target/) } }
+    end
+
     context 'bad hiera_source' do
       let(:params) { { :hiera_source => 'breakme' } }
       it { expect { should create_class('puppet') }.to raise_error(/expects a match for Pattern/) }
